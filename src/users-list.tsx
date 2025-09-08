@@ -1,18 +1,5 @@
 import { useState } from "react";
-
-type UserId = string;
-
-type User = {
-  id: UserId;
-  name: string;
-  description: string;
-};
-
-const users: User[] = Array.from({ length: 3000 }, (_, index) => ({
-  id: `user${index + 11}`,
-  name: `User ${index + 11}`,
-  description: `Description for user ${index + 11}`,
-}));
+import { users, type User } from "./store";
 
 export function UserList() {
   const [selectedUser, setSelectedUser] = useState<User>();
