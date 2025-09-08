@@ -1,12 +1,15 @@
 import { useEffect, useReducer, useRef } from "react";
 import "./App.css";
 import {
+  selectCounter,
   store,
+  useAppSelector,
   type AppState,
   type CounterId,
   type DecrementAction,
   type IncrementAction,
 } from "./store";
+import { useDispatch, useSelector } from "react-redux";
 
 function App() {
   return (
@@ -19,12 +22,14 @@ function App() {
   );
 }
 
-const selectCounter = (state: AppState, counterId: CounterId) =>
-  state.counters[counterId];
-
 export function Counter({ counterId }: { counterId: CounterId }) {
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const dispatch = useDispatch();
+  const counterState = useAppSelector((state) =>
+    selectCounter(state, counterId)
+  );
   console.log("RENDER", counterId);
+  /*const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  
 
   const lastStateRef = useRef<ReturnType<typeof selectCounter>>(undefined);
 
@@ -40,15 +45,15 @@ export function Counter({ counterId }: { counterId: CounterId }) {
 
     return unsubscribe;
   }, []);
-
-  const counterState = selectCounter(store.getState(), counterId);
+  */
+  // const counterState = selectCounter(store.getState(), counterId);
 
   return (
     <div className="card">
       counter {counterState?.counter}
       <button
         onClick={() =>
-          store.dispatch({
+          dispatch({
             type: "increment",
             payload: {
               counterId,
@@ -60,7 +65,7 @@ export function Counter({ counterId }: { counterId: CounterId }) {
       </button>
       <button
         onClick={() =>
-          store.dispatch({
+          dispatch({
             type: "decrement",
             payload: {
               counterId,
