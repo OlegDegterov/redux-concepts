@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
-type UserId = string;
+export type UserId = string;
 
 export type User = {
   id: UserId;
