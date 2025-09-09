@@ -4,8 +4,8 @@ import { useDispatch } from "react-redux";
 import {
   selectCounter,
   type CounterId,
-  type DecrementAction,
-  type IncrementAction,
+  incrementAction,
+  decrementAction,
 } from "./counters.slice";
 
 function Counters() {
@@ -28,28 +28,10 @@ export function Counter({ counterId }: { counterId: CounterId }) {
   return (
     <div className="card">
       counter {counterState?.counter}
-      <button
-        onClick={() =>
-          dispatch({
-            type: "increment",
-            payload: {
-              counterId,
-            },
-          } satisfies IncrementAction)
-        }
-      >
+      <button onClick={() => dispatch(incrementAction({ counterId }))}>
         increment
       </button>
-      <button
-        onClick={() =>
-          dispatch({
-            type: "decrement",
-            payload: {
-              counterId,
-            },
-          } satisfies DecrementAction)
-        }
-      >
+      <button onClick={() => dispatch(decrementAction({ counterId }))}>
         decrement
       </button>
     </div>
