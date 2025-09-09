@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  createAppSelector,
   UseAppDispatch,
   useAppSelector,
   type AppState,
@@ -8,17 +9,22 @@ import {
   type UserSelectedAction,
 } from "./store";
 
-const selectSortedUsers = (state: AppState, sort: "asc" | "desc") =>
-  state.users.ids
-    .map((id) => state.users.entities[id])
-    .filter((user): user is User => user !== undefined)
-    .sort((a, b) => {
-      if (sort === "asc") {
-        return a.name.localeCompare(b.name);
-      } else {
-        return b.name.localeCompare(a.name);
-      }
-    });
+const selectSortedUsers = createAppSelector(
+  (state: AppState) => state.users.ids,
+  (state: AppState) => state.users.entities,
+  (_: AppState, sort: "asc" | "desc") => sort,
+  (ids, entities, sort) =>
+    ids
+      .map((id) => entities[id])
+      .filter((user): user is User => user !== undefined)
+      .sort((a, b) => {
+        if (sort === "asc") {
+          return a.name.localeCompare(b.name);
+        } else {
+          return b.name.localeCompare(a.name);
+        }
+      })
+);
 
 const selectSelectedUser = (state: AppState) =>
   state.users.selectedUserId
