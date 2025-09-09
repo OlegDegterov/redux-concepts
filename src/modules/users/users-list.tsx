@@ -1,15 +1,10 @@
 import { useState, memo } from "react";
-import {
-  UseAppDispatch,
-  useAppSelector,
-} from "../../store";
+import { UseAppDispatch, useAppSelector } from "../../store";
 import {
   selectSelectedUser,
-  selectSortedUsers,
+  usersSlice,
   type User,
   type UserId,
-  type UserRemoveSelectedAction,
-  type UserSelectedAction,
 } from "./users.slice";
 
 export function UserList() {
@@ -18,7 +13,7 @@ export function UserList() {
   const selectedUser = useAppSelector(selectSelectedUser);
 
   const sortedUsers = useAppSelector((state) =>
-    selectSortedUsers(state, sortType)
+    usersSlice.selectors.selectSorted(state, sortType)
   );
 
   return (
@@ -57,18 +52,13 @@ const UserListItem = memo(function UserListItem({
 }: {
   userId: UserId;
 }) {
-  const user = useAppSelector(selectSelectedUser);
+  const user = useAppSelector((state) => state.users.entities[userId]);
   const dispatch = UseAppDispatch();
   console.log("UserListItem", userId);
   if (!user) return null;
 
   const handleUserClick = () => {
-    dispatch({
-      type: "userSelected",
-      payload: {
-        userId: user.id,
-      },
-    } satisfies UserSelectedAction);
+    dispatch(usersSlice.actions.selected({ userId }));
   };
 
   return (
@@ -81,9 +71,7 @@ const UserListItem = memo(function UserListItem({
 function SelectedUser({ user }: { user: User }) {
   const dispatch = UseAppDispatch();
   const handleBackButtonClick = () => {
-    dispatch({
-      type: "userRemoveSelected",
-    } satisfies UserRemoveSelectedAction);
+    dispatch(usersSlice.actions.selectRemove());
   };
   return (
     <div className="flex flex-col items-center">
