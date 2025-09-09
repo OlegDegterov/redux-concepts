@@ -27,8 +27,10 @@ type CounterState = {
 
 export type CounterId = string;
 
+type CountersState = Record<CounterId, CounterState | undefined>;
+
 type State = {
-  counters: Record<CounterId, CounterState | undefined>;
+  counters: CountersState;
   users: UsersState;
 };
 
@@ -84,72 +86,76 @@ const initialState: State = {
   users: initialUserState,
 };
 
-const reducer = (state = initialState, action: Action): State => {
+const initialCountersState: CountersState = {};
+
+const usersReducer = (state = initialUserState, action: Action): UsersState => {
   switch (action.type) {
-    case "increment": {
-      const { counterId } = action.payload;
-      const currentCounter = state.counters[counterId] ?? initialCounterState;
-      return {
-        ...state,
-        counters: {
-          ...state.counters,
-          [counterId]: {
-            ...currentCounter,
-            counter: currentCounter.counter + 1,
-          },
-        },
-      };
-    }
-    case "decrement": {
-      const { counterId } = action.payload;
-      const currentCounter = state.counters[counterId] ?? initialCounterState;
-      return {
-        ...state,
-        counters: {
-          ...state.counters,
-          [counterId]: {
-            ...currentCounter,
-            counter: currentCounter.counter - 1,
-          },
-        },
-      };
-    }
     case "usersStored": {
       const { users } = action.payload;
       return {
         ...state,
-        users: {
-          ...state.users,
-          entities: users.reduce((acc: Record<UserId, User>, user: User) => {
-            acc[user.id] = user;
-            return acc;
-          }, {} as Record<UserId, User>),
-          ids: users.map((user: User) => user.id),
-        },
+        entities: users.reduce((acc: Record<UserId, User>, user: User) => {
+          acc[user.id] = user;
+          return acc;
+        }, {} as Record<UserId, User>),
+        ids: users.map((user: User) => user.id),
       };
     }
     case "userSelected": {
       const { userId } = action.payload;
       return {
         ...state,
-        users: {
-          ...state.users,
-          selectedUserId: userId,
-        },
+        selectedUserId: userId,
       };
     }
     case "userRemoveSelected": {
       return {
         ...state,
-        users: {
-          ...state.users,
-          selectedUserId: undefined,
+        selectedUserId: undefined,
+      };
+    }
+    default:
+      return state;
+  }
+};
+
+const countersReducer = (
+  state = initialCountersState,
+  action: Action
+): CountersState => {
+  switch (action.type) {
+    case "increment": {
+      const { counterId } = action.payload;
+      const currentCounter = state[counterId] ?? initialCounterState;
+      return {
+        ...state,
+        [counterId]: {
+          ...currentCounter,
+          counter: currentCounter.counter + 1,
+        },
+      };
+    }
+    case "decrement": {
+      const { counterId } = action.payload;
+      const currentCounter = state[counterId] ?? initialCounterState;
+      return {
+        ...state,
+        [counterId]: {
+          ...currentCounter,
+          counter: currentCounter.counter - 1,
         },
       };
     }
     default:
       return state;
   }
+};
+
+const reducer = (state = initialState, action: Action): State => {
+  return {
+    users: usersReducer(state.users, action),
+    counters: countersReducer(state.counters, action),
+  };
 };
 
 export const store = configureStore({
