@@ -1,36 +1,17 @@
 import { useState, memo } from "react";
 import {
-  createAppSelector,
   UseAppDispatch,
   useAppSelector,
-  type AppState,
+} from "../../store";
+import {
+  selectSelectedUser,
+  selectSortedUsers,
   type User,
   type UserId,
   type UserRemoveSelectedAction,
   type UserSelectedAction,
-} from "./store";
+} from "./users.slice";
 
-const selectSortedUsers = createAppSelector(
-  (state: AppState) => state.users.ids,
-  (state: AppState) => state.users.entities,
-  (_: AppState, sort: "asc" | "desc") => sort,
-  (ids, entities, sort) =>
-    ids
-      .map((id) => entities[id])
-      .filter((user): user is User => user !== undefined)
-      .sort((a, b) => {
-        if (sort === "asc") {
-          return a.name.localeCompare(b.name);
-        } else {
-          return b.name.localeCompare(a.name);
-        }
-      })
-);
-
-const selectSelectedUser = (state: AppState) =>
-  state.users.selectedUserId
-    ? state.users.entities[state.users.selectedUserId]
-    : undefined;
 export function UserList() {
   const [sortType, setSortType] = useState<"asc" | "desc">("asc");
 
@@ -76,7 +57,7 @@ const UserListItem = memo(function UserListItem({
 }: {
   userId: UserId;
 }) {
-  const user = useAppSelector((state) => state.users.entities[userId]);
+  const user = useAppSelector(selectSelectedUser);
   const dispatch = UseAppDispatch();
   console.log("UserListItem", userId);
   if (!user) return null;
