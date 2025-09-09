@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import {
   createAppSelector,
   UseAppDispatch,
   useAppSelector,
   type AppState,
   type User,
+  type UserId,
   type UserRemoveSelectedAction,
   type UserSelectedAction,
 } from "./store";
@@ -59,7 +60,7 @@ export function UserList() {
           </div>
           <ul className="list-none">
             {sortedUsers.map((user) => (
-              <UserListItem user={user} key={user.id} />
+              <UserListItem userId={user.id} key={user.id} />
             ))}
           </ul>
         </div>
@@ -70,8 +71,16 @@ export function UserList() {
   );
 }
 
-function UserListItem({ user }: { user: User }) {
+const UserListItem = memo(function UserListItem({
+  userId,
+}: {
+  userId: UserId;
+}) {
+  const user = useAppSelector((state) => state.users.entities[userId]);
   const dispatch = UseAppDispatch();
+  console.log("UserListItem", userId);
+  if (!user) return null;
+
   const handleUserClick = () => {
     dispatch({
       type: "userSelected",
@@ -80,12 +89,13 @@ function UserListItem({ user }: { user: User }) {
       },
     } satisfies UserSelectedAction);
   };
+
   return (
     <li key={user.id} className="py-2" onClick={handleUserClick}>
       <span className="hover:underline cursor-pointer">{user.name}</span>
     </li>
   );
-}
+});
 
 function SelectedUser({ user }: { user: User }) {
   const dispatch = UseAppDispatch();
